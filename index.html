@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Long and Short Vowel Sound Sorting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        .list, .category {
+            border: 2px solid #ddd;
+            padding: 20px;
+            width: 200px;
+            min-height: 300px;
+            text-align: left;
+        }
+        .category {
+            background-color: #f9f9f9;
+        }
+        .word {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            margin: 5px;
+            padding: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .word.dragging {
+            opacity: 0.5;
+        }
+        #more-lessons {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 30px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #message {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #congrats-message {
+            color: green;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Logo -->
+<img src="https://i.imgur.com/mwpTHJj.png" alt="Logo" width="150">
+
+<h1>Sort Words into Long and Short Vowel Sounds</h1>
+<p>In English, vowel sounds can be either long or short:</p>
+<ul style="text-align:left; max-width: 600px; margin: 0 auto;">
+    <li><strong>Long vowel sounds</strong> sound like the name of the letter. For example, "a" in "cake" or "e" in "tree".</li>
+    <li><strong>Short vowel sounds</strong> are shorter and do not sound like the name of the letter. For example, "a" in "bat" or "e" in "pen".</li>
+</ul>
+<p>Drag the words into the correct category:</p>
+
+<div class="container">
+    <div class="list">
+        <h3>Words</h3>
+        <div id="words-container">
+            <!-- Words to be sorted will appear here -->
+        </div>
+    </div>
+
+    <div class="category" id="long-vowel">
+        <h3>Long Vowel Sounds</h3>
+        <!-- Dragged words will appear here -->
+    </div>
+
+    <div class="category" id="short-vowel">
+        <h3>Short Vowel Sounds</h3>
+        <!-- Dragged words will appear here -->
+    </div>
+</div>
+
+<p id="message"></p>
+<p id="congrats-message"></p>
+
+<!-- More Lessons Button -->
+<a id="more-lessons" href="https://sites.google.com/view/grades-2/home" style="display: none;">More Lessons</a>
+
+<script>
+    const words = [
+        { text: "cake", type: "long" },
+        { text: "bat", type: "short" },
+        { text: "bike", type: "long" },
+        { text: "dog", type: "short" },
+        { text: "rain", type: "long" },
+        { text: "cat", type: "short" },
+        { text: "tree", type: "long" },
+        { text: "pen", type: "short" },
+        { text: "beet", type: "long" },
+        { text: "hit", type: "short" },
+        { text: "rope", type: "long" },
+        { text: "bed", type: "short" },
+        { text: "cube", type: "long" },
+        { text: "cut", type: "short" },
+        { text: "goat", type: "long" },
+        { text: "top", type: "short" },
+        { text: "kite", type: "long" },
+        { text: "rat", type: "short" },
+        { text: "hope", type: "long" },
+        { text: "log", type: "short" }
+    ];
+
+    const wordsContainer = document.getElementById('words-container');
+    const longVowelContainer = document.getElementById('long-vowel');
+    const shortVowelContainer = document.getElementById('short-vowel');
+    const message = document.getElementById('message');
+    const congratsMessage = document.getElementById('congrats-message');
+    const moreLessonsButton = document.getElementById('more-lessons');
+
+    let sortedCount = 0;
+
+    // Shuffle the words array
+    words.sort(() => Math.random() - 0.5);
+
+    function createWordElement(word) {
+        const wordElement = document.createElement('div');
+        wordElement.classList.add('word');
+        wordElement.textContent = word.text;
+        wordElement.setAttribute('data-type', word.type);
+        wordElement.setAttribute('draggable', true);
+
+        wordElement.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', word.text);
+            e.target.classList.add('dragging');
+        });
+
+        wordElement.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+        });
+
+        return wordElement;
+    }
+
+    function allowDrop(e) {
+        e.preventDefault();
+    }
+
+    function dropWord(e, categoryType) {
+        e.preventDefault();
+        const wordText = e.dataTransfer.getData('text/plain');
+        const wordElement = Array.from(wordsContainer.children).find(w => w.textContent === wordText);
+        if (wordElement && wordElement.getAttribute('data-type') === categoryType) {
+            e.target.appendChild(wordElement);
+            message.textContent = "Great job!";
+            message.style.color = "green";
+            sortedCount++;
+            checkCompletion();
+        } else {
+            message.textContent = "Oops! Try again.";
+            message.style.color = "red";
+        }
+    }
+
+    function checkCompletion() {
+        if (sortedCount === words.length) {
+            congratsMessage.textContent = "Congratulations! You've sorted all the words correctly!";
+            moreLessonsButton.style.display = 'inline-block';  // Show the "More Lessons" button
+        }
+    }
+
+    words.forEach(word => {
+        wordsContainer.appendChild(createWordElement(word));
+    });
+
+    longVowelContainer.addEventListener('dragover', allowDrop);
+    shortVowelContainer.addEventListener('dragover', allowDrop);
+
+    longVowelContainer.addEventListener('drop', (e) => dropWord(e, 'long'));
+    shortVowelContainer.addEventListener('drop', (e) => dropWord(e, 'short'));
+</script>
+
+</body>
+</html>
